@@ -4,6 +4,7 @@
  * User: TOSHIBA
  * Date: 10/04/2018
  * Time: 10:15 AM
+ *lala
  */
 
 <form action="lab7task_login_mid.php" method="post" enctype = "multipart/form-data">
