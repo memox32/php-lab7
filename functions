@@ -1,0 +1,124 @@
+<?php
+
+//User defined error handler function
+function myErrorHandler($errNo, $errStr){
+
+    echo "<span style = 'color : red'> $errStr</span>";
+}
+
+//Set user defined error handler function
+set_error_handler("myErrorHandler");
+
+//Function to trim the values
+function test_input($data){
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
+
+//This includes all the form validation
+function formValidationText($formValue, &$name, &$nameErr){
+
+//Validates that user input information and that this is correct, this is for non-numeric values
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (empty($_POST ["$formValue"])) {
+            $nameErr = 1;
+        } else {
+            $name = test_input($_POST["$formValue"]);
+            if (!preg_match("/^[a-zA-Z ]*$/", $name)) {
+                $nameErr = 2;
+            }
+        }
+    }
+}
+//Validates that user input information and that this is correct, this is for numeric values
+function formValidationNumber($formValue, &$number, &$numberErr){
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+        if (empty($_POST ["$formValue"])) {
+            $numberErr = 1;
+        } else {
+            $number = test_input($_POST["$formValue"]);
+            if (!preg_match("/.[0-9]*$/", $number)) {
+                $numberErr = 2;
+            }
+        }
+        if ($number <0){
+            $numberErr = 3;
+        }
+    }
+}
+//Validation of the email
+function formValidationEmail($formValue, &$email, &$emailErr){
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (empty($_POST["$formValue"])){
+            $emailErr =  1;
+        }
+        else{
+            $email = test_input($_POST["$formValue"]);
+
+            $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+            if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+                $emailErr = 2;
+            }
+        }
+    }
+}
+
+$target_dir = "upload\\";
+
+function getImage($fileToUpload, $target_dir)
+{
+
+    $err_status = 1;
+    $err_msg = "";
+
+    $filename = basename($_FILES["$fileToUpload"]["name"]);
+    $target_file = $target_dir . $filename;
+
+    $imageFileType = pathinfo($target_file, PATHINFO_EXTENSION);
+
+//Check if image file is an actual image or fake image
+    $check_type = getimagesize($_FILES["$fileToUpload"]["tmp_name"]);
+    if ($check_type == false) {
+        $err_status = -1;
+        $err_msg = "Invalid file format. File is not an image";
+    }
+
+//Check if file already exist
+//    if (file_exists($target_file)) {
+//        if (isset($_POST['override']) && $_POST['override'] == 'checked') {
+//            echo "The file has been overrode";
+//        } else {
+//            $err_status = -1;
+//            $err_msg = "File already exist";
+//        }
+//    }
+//Check and limit file size
+    if ($_FILES["$fileToUpload"]["size"] > 500000) {
+        $err_status = -1;
+        $err_msg = "File is too large. Choose smaller size file";
+    }
+
+//Move file from a temporary server folder into target folder
+    if ($err_status == 1) {
+        if (!move_uploaded_file($_FILES["$fileToUpload"]["tmp_name"], $target_file)) {
+            $err_status = -1;
+            $err_msg = "Unknown error";
+        }
+    }
+
+//Display error message if error occurred
+    if ($err_status < 1) {
+        echo "Error encountered: " . $err_msg;
+    } else {
+        echo "<p>Successfully. Uploaded file: <b>" . $filename . "</b></p>";
+        echo "<img src=\"" . $target_file . "\">";
+    }
+}
+
+ ?>
+
+
