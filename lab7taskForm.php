@@ -5,7 +5,7 @@
  */
 
 //Include the functions file to implements the functions created
-include "functionsGitLab.php";
+include "functions.php";
 
 //Declaration of variables
 $name = $age = $gender = $tel = $email = $income = $comments = $image = $tax= $total = "";
